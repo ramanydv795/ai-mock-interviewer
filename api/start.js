@@ -1,11 +1,9 @@
 import OpenAI from "openai";
 
-export default function handler(req, res) {
-  if (req.method === "POST") {
-    return res.status(200).json({ success: true });
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
-  return res.status(405).json({ error: "Method not allowed" });
-
 
   try {
     const client = new OpenAI({
@@ -22,19 +20,23 @@ export default function handler(req, res) {
         {
           role: "system",
           content: `You are a technical interviewer for ${role} at ${level}.
-          Return JSON with: question, questionNumber, totalQuestions, topic`
+Return JSON with: question, questionNumber, totalQuestions, topic`,
         },
         {
           role: "user",
-          content: "Start interview"
-        }
+          content: "Start interview",
+        },
       ],
     });
 
     const data = JSON.parse(response.choices[0].message.content);
-    res.status(200).json(data);
+
+    return res.status(200).json(data);
 
   } catch (err) {
-    res.status(500).json({ error: "Failed to start interview" });
+    console.error(err);
+    return res.status(500).json({
+      error: err.message || "Failed to start interview",
+    });
   }
 }
