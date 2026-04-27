@@ -1,0 +1,38 @@
+import OpenAI from "openai";
+
+const client = new OpenAI({
+  apiKey: process.env.GROQ_API_KEY,
+  baseURL: "https://api.groq.com/openai/v1",
+});
+
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  try {
+    const { role, level } = req.body;
+
+    const response = await client.chat.completions.create({
+      model: "llama-3.3-70b-versatile",
+      response_format: { type: "json_object" },
+      messages: [
+        {
+          role: "system",
+          content: `You are a technical interviewer for ${role} at ${level}.
+          Return JSON with question, questionNumber, totalQuestions, topic`
+        },
+        {
+          role: "user",
+          content: "Start interview"
+        }
+      ],
+    });
+
+    const data = JSON.parse(response.choices[0].message.content);
+    res.status(200).json(data);
+
+  } catch (err) {
+    res.status(500).json({ error: "Failed to start interview" });
+  }
+}

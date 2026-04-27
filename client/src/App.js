@@ -14,7 +14,7 @@ export default function App() {
 
   const startInterview = async () => {
     setLoading(true);
-    const response = await axios.post("https://ai-mock-interviewer-gules-theta.vercel.app/api/start", {
+    const response = await axios.post("/api/start", {
       role,
       level,
     });
@@ -26,7 +26,7 @@ export default function App() {
 
   const submitAnswer = async () => {
     setLoading(true);
-    const response = await axios.post("https://ai-mock-interviewer-gules-theta.vercel.app/api/next", {
+    const response = await axios.post("/api/next", {
       role,
       level,
       question: question.question,
