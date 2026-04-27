@@ -15,10 +15,12 @@ export default async function handler(req, res) {
 
     const response = await client.chat.completions.create({
       model: "llama-3.3-70b-versatile",
+      response_format: { type: "json_object" },
       messages: [
         {
           role: "system",
-          content: `You are a technical interviewer for ${role} at ${level} level. Give 1 question in JSON format.`
+          content: `You are a technical interviewer for ${role} at ${level}.
+          Return JSON with: question, questionNumber, totalQuestions, topic`
         },
         {
           role: "user",
@@ -27,9 +29,10 @@ export default async function handler(req, res) {
       ],
     });
 
-    res.status(200).json(response.choices[0].message);
+    const data = JSON.parse(response.choices[0].message.content);
+    res.status(200).json(data);
 
   } catch (err) {
-    res.status(500).json({ error: "Failed" });
+    res.status(500).json({ error: "Failed to start interview" });
   }
 }
